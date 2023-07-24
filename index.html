@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>상담 봇</title>
+  <link rel="shortcut icon" href="static/on.jpeg" />
+  <link rel="stylesheet" href="static/main.css" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+  <div class="on-bot">
+    <img src="static/on.jpeg" width="200"/>
+    <h3>온성현 상담가</h3>
+    <input type="text" name="on-question" id="on-question" placeholder="성현님께 질문을 해주세요."  />
+    <div class="on_prompt" id="on-prompt"></div>
+    <div class="on_result" id="on-result"></div>
+  </div>
+  <hr>
+  <input type="button" value="질문 보내기" id="submit-button" />
+  <div id="response-container"></div>
+
+  <script>
+    $(document).ready(function() {
+      $("#submit-button").on("click", function() {
+        var on_question = $("#on-question").val();
+
+        if (on_question.trim() === "") {
+          return;
+        }
+
+        var data = {
+          "prompt": on_question + '\n',
+          "temperature": 0.8,
+          "max_tokens": 257,
+          "stop": ["\n ##end##"],
+          "model": "curie:ft-personal-2023-07-21-03-37-01"
+        };
+
+        $.ajax({
+          type: "POST",
+          url: "https://api.openai.com/v1/completions", // The OpenAI API endpoint
+          headers: {
+            "Authorization": "Bearer YOUR_OPENAI_API_KEY" // Replace with your actual OpenAI API key
+          },
+          contentType: "application/json",
+          data: JSON.stringify(data),
+          success: function(response) {
+            $("#on-question").val(""); // Clear the input field
+            $("#on-prompt").text("고객님: " + on_question); // Update the question display
+            $("#on-result").text("온성현님: " + response.choices[0].text); // Update the answer display
+          },
+          error: function(error) {
+            alert("An error occurred. Please try again later.");
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
